@@ -1,0 +1,9 @@
+div[data-testid="stHorizontalBlock"] {
+    display: flex;
+    justify-content: center;
+}
+
+div[data-testid="stHorizontalBlock"] {
+    display: flex;
+    justify-content: center;
+}
