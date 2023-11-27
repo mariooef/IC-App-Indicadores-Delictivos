@@ -1,2 +1,3 @@
 streamlit==1.28.2
-st-lottie
+streamlit-lottie==0.0.5
+folium==0.15.0

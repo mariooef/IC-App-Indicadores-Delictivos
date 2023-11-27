@@ -4,11 +4,13 @@ import requests
 #from streamlit_lottie import st_lottie
 import pandas as pd
 import os
-import plotly.express as px
-import folium
-from streamlit_folium import st_folium
+#import plotly.express as px
+#import folium
+#from streamlit_folium import st_folium
 import datetime
 import numpy as np
+import altair as alt
+
 
 #os.chdir("C:\Proyectos\Maestria\IngenieriaCaracteristicas\Proyectos\IC-App-Indicadores-Delictivos")
 st.set_page_config(page_title="Contando una Historia con Datos", page_icon="📊", layout="wide")
@@ -74,42 +76,72 @@ section = st.sidebar.radio("Selecciona una historia:", ["Presentación", "Histor
 # Historia 1: Tipos de Delitos en Regiones
 if section == "Historia Región":
     st.title("Historia Región: Tipos de Delitos en Regiones")
-    # Agregar gráficas y elementos interactivos aquí...
+
+    #st.markdown("""<h3>Tipos de Delitos en Regiones</h3>""", unsafe_allow_html=True)
+    #fig = px.bar(df_delitos, x='Región', y='Cantidad', color='Tipo_De_Licto', barmode='group')
+    #st.plotly_chart(fig)
 
     st.markdown("""<h3>Tipos de Delitos en Regiones</h3>""", unsafe_allow_html=True)
-    fig = px.bar(df_delitos, x='Región', y='Cantidad', color='Tipo_De_Licto', barmode='group')
-    st.plotly_chart(fig)
+    #fig = px.bar(df_delitos, x='Región', y='Cantidad', color='Tipo_De_Licto', barmode='group')
+    #st.plotly_chart(fig)
+
+    # Filtrar por región
+    region_seleccionada = st.selectbox("Selecciona una región:", df_delitos['Región'].unique())
+    df_region = df_delitos[df_delitos['Región'] == region_seleccionada]
+    
+    chart = alt.Chart(df_region).mark_bar().encode(
+        x='Tipo_De_Licto:N',
+        y='sum(Cantidad):Q',
+        tooltip=['Tipo_De_Licto:N', 'sum(Cantidad):Q']
+    ).properties(width=500)
+
+    st.altair_chart(chart, use_container_width=True)
 
     st.markdown("""<h3>Mapa Coroplético de Incidencia de Delitos por Región</h3>""", unsafe_allow_html=True)
 
-    centro_mapa = [df_delitos['Latitud'].mean(), df_delitos['Longitud'].mean()]
-    m = folium.Map(location=centro_mapa, zoom_start=6)
+    #centro_mapa = [df_delitos['Latitud'].mean(), df_delitos['Longitud'].mean()]
+    #m = folium.Map(location=centro_mapa, zoom_start=6)
 
-    for index, row in df_delitos.iterrows():
-        folium.Marker(
-            location=[row['Latitud'], row['Longitud']],
-            popup=f"{row['Municipio']} ({row['Región']}): {row['Cantidad']} delitos ({row['Tipo_De_Licto']})"
-        ).add_to(m)
+    #for index, row in df_delitos.iterrows():
+    #    folium.Marker(
+    #        location=[row['Latitud'], row['Longitud']],
+    #        popup=f"{row['Municipio']} ({row['Región']}): {row['Cantidad']} delitos ({row['Tipo_De_Licto']})"
+    #    ).add_to(m)
 
     # Guardar el mapa como un archivo HTML temporal
-    mapa_html = f"data/mapa_temp.html"
-    m.save(mapa_html)
+    #mapa_html = f"data/mapa_temp.html"
+    #m.save(mapa_html)
 
     # Mostrar el mapa en Streamlit usando HTML
-    st.markdown("""<iframe src="data/mapa_temp.html" width="100%" height="500" frameborder="0" allowFullScreen="true"></iframe>""", unsafe_allow_html=True)
+    #st.markdown("""<iframe src="data/mapa_temp.html" width="100%" height="500" frameborder="0" allowFullScreen="true"></iframe>""", unsafe_allow_html=True)
+
+    st.map(df_delitos,
+    latitude='lat',
+    longitude='lon',
+    size='Cantidad')
 
     st.markdown("""<h3>Gráficas con Power BI</h3>""", unsafe_allow_html=True)
     st.markdown("""<iframe title="testIC" width="70%" height="600" src="https://app.powerbi.com/view?r=eyJrIjoiNTczNDMzNGItMGY5Yi00ZmM5LWE4NjctNWNjYjJmNzY4ZjQ2IiwidCI6IjY3NTUzNjQ1LTBkYjMtNDQ4MC1iMTI3LTZmODE5YTc5ZTM2NyIsImMiOjR9&pageName=ReportSectionc7b0f916ac6d03fe4d85" frameborder="0" allowFullScreen="true"></iframe>""", unsafe_allow_html=True)
 
 # Historia 2: Influencia de la Temperatura en Delitos
 elif section == "Historia Temperatura":
-    st.title("Historia Temperatura: Influencia de la Temperatura en Delitos")
+    st.markdown("""<h3>Influencia de la Temperatura en Delitos</h3>""", unsafe_allow_html=True)
     # Agregar gráficas y elementos interactivos aquí...
     
-    st.title("Influencia de la Temperatura en Delitos")
+    #st.title("Influencia de la Temperatura en Delitos")
 
-    scatter_fig = px.scatter(df_temperatura, x='Temperatura', y='Cantidad', color='Tipo_De_Licto', size='Cantidad')
-    st.plotly_chart(scatter_fig)
+    #scatter_fig = px.scatter(df_temperatura, x='Temperatura', y='Cantidad', color='Tipo_De_Licto', size='Cantidad')
+    #st.plotly_chart(scatter_fig)
+
+    scatter = alt.Chart(df_temperatura).mark_circle().encode(
+        x='Fecha:T',
+        y='Temperatura:Q',
+        color='Municipio:N',
+        size='Cantidad:Q',
+        tooltip=['Municipio:N', 'Fecha:T', 'Temperatura:Q', 'Cantidad:Q']
+    ).properties(width=700, height=400)
+
+    st.altair_chart(scatter, use_container_width=True)
 
 # Página de Inicio
 else:
