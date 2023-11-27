@@ -1,7 +1,7 @@
 import streamlit as st
 from PIL import Image
 import requests
-from streamlit_lottie import st_lottie
+#from streamlit_lottie import st_lottie
 import pandas as pd
 import os
 import plotly.express as px
@@ -22,11 +22,11 @@ def css_load(css_file):
     except Exception as e:
         st.error(f"Error al cargar el archivo CSS: {str(e)}")
 
-def load_lottie(url):
-    r = requests.get(url)
-    if r.status_code != 200:
-        return None
-    return r.json()
+#def load_lottie(url):
+#    r = requests.get(url)
+#    if r.status_code != 200:
+#        return None
+#    return r.json()
 
 css_load(f"style/main.css")
 app_container = st.container()
@@ -114,13 +114,15 @@ elif section == "Historia Temperatura":
 # Página de Inicio
 else:
     url = "https://lottie.host/e8a1108f-ade8-4192-a487-0cea229574d8/u8vVG9oEEo.json"
-    lottie_inicial = load_lottie(url)
+    #lottie_inicial = load_lottie(url)
 
     with app_container:
         st.title("Análisis Incidencia Delictiva con Datos (Contando algunas historias)")
         animation_column, text_column = st.columns(2)
         with animation_column:
-            st_lottie(lottie_inicial, height=300)
+            imagen_url = "images/stats.png"
+            st.image(imagen_url, caption='', use_column_width=True, width=0.5)
+            #st_lottie(lottie_inicial, height=300)
         with text_column:
             st.markdown("""
                 <div style='text-align: justify; display: flex; align-items: center; height: 100%; width: 60%; justify-content: left'>
