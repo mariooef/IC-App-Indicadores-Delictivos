@@ -8,5 +8,3 @@ st.set_page_config(
     page_icon="📊",
     layout="wide"
 )
-
-os.chdir("C:\Proyectos\Maestria\IngenieriaCaracteristicas\Proyectos\IC-App-Indicadores-Delictivos")
