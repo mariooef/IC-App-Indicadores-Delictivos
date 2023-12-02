@@ -1,0 +1,31 @@
+,region,tipo_delito,numero_delitos,total_delitos,numero_delitos_rel
+34,Noraeste,Trata de personas,2.0,4.0,0.5
+12,Noraeste,Evasión de presos,3.0,10.0,0.3
+23,Noraeste,Narcomenudeo,4926.0,17490.0,0.2816466552315609
+33,Noraeste,Secuestro,15.0,58.0,0.25862068965517243
+24,Noraeste,Otros delitos contra el patrimonio,252.0,1137.0,0.22163588390501318
+11,Centro Norte,Electorales,4.0,6.0,0.6666666666666666
+25,Centro Norte,Otros delitos contra la familia,292.0,444.0,0.6576576576576577
+35,Centro Norte,Tráfico de menores,218.0,339.0,0.6430678466076696
+1,Centro Norte,Abuso de confianza,1321.0,2084.0,0.6338771593090211
+14,Centro Norte,Falsedad,294.0,465.0,0.632258064516129
+31,Sur,Rapto,40.0,60.0,0.6666666666666666
+30,Sur,Otros delitos que atentan contra la vida y la integridad corporal,893.0,1427.0,0.6257883672039243
+6,Sur,Contra el medio ambiente,6.0,10.0,0.6
+18,Sur,Homicidio,6256.0,12162.0,0.5143890807432988
+26,Sur,Otros delitos contra la sociedad,225.0,475.0,0.47368421052631576
+12,Río Sonora,Evasión de presos,1.0,10.0,0.1
+38,Río Sonora,Violencia de género en todas sus modalidades distinta a la violencia familiar,2.0,35.0,0.05714285714285714
+7,Río Sonora,Corrupción de menores,20.0,494.0,0.04048582995951417
+19,Río Sonora,Hostigamiento sexual,3.0,75.0,0.04
+3,Río Sonora,Acoso sexual,14.0,416.0,0.03365384615384615
+20,Sierra Alta,Incesto,1.0,5.0,0.2
+11,Sierra Alta,Electorales,1.0,6.0,0.16666666666666666
+13,Sierra Alta,Extorsión,67.0,477.0,0.14046121593291405
+0,Sierra Alta,Aborto,5.0,48.0,0.10416666666666667
+36,Sierra Alta,Violación equiparada,39.0,410.0,0.0951219512195122
+38,Sierra Centro,Violencia de género en todas sus modalidades distinta a la violencia familiar,1.0,35.0,0.02857142857142857
+9,Sierra Centro,Delitos cometidos por servidores públicos,13.0,677.0,0.019202363367799114
+31,Sierra Centro,Rapto,1.0,60.0,0.016666666666666666
+10,Sierra Centro,Despojo,43.0,2725.0,0.01577981651376147
+19,Sierra Centro,Hostigamiento sexual,1.0,75.0,0.013333333333333334

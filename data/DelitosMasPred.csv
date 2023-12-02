@@ -1,0 +1,31 @@
+,region,tipo_delito,numero_delitos
+72,Noraeste,Robo,8265.0
+63,Noraeste,Narcomenudeo,4926.0
+79,Noraeste,Violencia familiar,4371.0
+67,Noraeste,Otros delitos del Fuero Común,2503.0
+48,Noraeste,Daño a la propiedad,2367.0
+32,Centro Norte,Robo,40615.0
+39,Centro Norte,Violencia familiar,19280.0
+21,Centro Norte,Incumplimiento de obligaciones de asistencia familiar,8835.0
+27,Centro Norte,Otros delitos del Fuero Común,8478.0
+23,Centro Norte,Narcomenudeo,8290.0
+232,Sur,Robo,30139.0
+239,Sur,Violencia familiar,11449.0
+222,Sur,Lesiones,9107.0
+208,Sur,Daño a la propiedad,6979.0
+218,Sur,Homicidio,6256.0
+112,Río Sonora,Robo,1162.0
+119,Río Sonora,Violencia familiar,839.0
+102,Río Sonora,Lesiones,578.0
+101,Río Sonora,Incumplimiento de obligaciones de asistencia familiar,405.0
+88,Río Sonora,Daño a la propiedad,364.0
+152,Sierra Alta,Robo,2597.0
+159,Sierra Alta,Violencia familiar,1686.0
+141,Sierra Alta,Incumplimiento de obligaciones de asistencia familiar,1241.0
+142,Sierra Alta,Lesiones,1134.0
+128,Sierra Alta,Daño a la propiedad,831.0
+192,Sierra Centro,Robo,294.0
+199,Sierra Centro,Violencia familiar,95.0
+182,Sierra Centro,Lesiones,88.0
+168,Sierra Centro,Daño a la propiedad,75.0
+178,Sierra Centro,Homicidio,71.0
