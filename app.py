@@ -199,7 +199,7 @@ else:
         with col1:
             kpi_total = df_delitos_mas_pred['numero_delitos'].sum()
             info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Total Delitos</p>"
-            info_message = f"<p style='font-size: 24px; font-weight: bold;'>{"{:,}".format(int(kpi_total))}</p>"
+            info_message = f"<p style='font-size: 24px; font-weight: bold;'>{int(kpi_total):,}</p>"
             styled_info_message = f'<div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 100px;">{info_title}{info_message}</div>'
             st.markdown(styled_info_message, unsafe_allow_html=True)
         with col2:
@@ -208,7 +208,7 @@ else:
             region_max_delitos = df_delitos_mas_pred.loc[df_delitos_mas_pred['numero_delitos'].idxmax()]['region']
             region_max_numdelitos = df_delitos_mas_pred.loc[df_delitos_mas_pred['numero_delitos'].idxmax()]['numero_delitos']
             #info_message = f"<p style='font-size: 24px; font-weight: bold;'>{int(kpi_region[kpi_region['region']=='Centro Norte']['numero_delitos'].iloc[0])}</p>"
-            info_message = f"<p style='font-size: 24px; font-weight: bold;'>{region_max_delitos} ({"{:,}".format(int(region_max_numdelitos))})</p>"
+            info_message = f"<p style='font-size: 24px; font-weight: bold;'>{region_max_delitos} ({int(region_max_numdelitos):,})</p>"
             styled_info_message = f'<div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 100px;">{info_title}{info_message}</div>'
             st.markdown(styled_info_message, unsafe_allow_html=True)
         with col3:
