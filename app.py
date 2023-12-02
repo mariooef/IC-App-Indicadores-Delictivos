@@ -1,18 +1,21 @@
 import streamlit as st
 from PIL import Image
 import requests
-#from streamlit_lottie import st_lottie
+from streamlit_lottie import st_lottie
 import pandas as pd
 import os
-#import plotly.express as px
-#import folium
-#from streamlit_folium import st_folium
+import plotly
+import plotly.express as px
+import folium
+from  streamlit_folium import st_folium
 import datetime
 import numpy as np
 import altair as alt
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
-#os.chdir("C:\Proyectos\Maestria\IngenieriaCaracteristicas\Proyectos\IC-App-Indicadores-Delictivos")
+os.chdir("C:\Proyectos\Maestria\IngenieriaCaracteristicas\Proyectos\IC-App-Indicadores-Delictivos")
 st.set_page_config(page_title="Contando una Historia con Datos", page_icon="📊", layout="wide")
 
 def css_load(css_file):
@@ -24,11 +27,11 @@ def css_load(css_file):
     except Exception as e:
         st.error(f"Error al cargar el archivo CSS: {str(e)}")
 
-#def load_lottie(url):
-#    r = requests.get(url)
-#    if r.status_code != 200:
-#        return None
-#    return r.json()
+def load_lottie(url):
+    r = requests.get(url)
+    if r.status_code != 200:
+        return None
+    return r.json()
 
 css_load(f"style/main.css")
 app_container = st.container()
@@ -69,6 +72,7 @@ df_temperatura = pd.DataFrame(data_temperatura)
 # Intro
 with app_container:
         st.header("MCD UNISON - TEAM 2")
+        st.markdown("<h4>(Contando algunas historias)</h4>",unsafe_allow_html=True)
 
 # Selector de secciones
 section = st.sidebar.radio("Selecciona una historia:", ["Presentación", "Historia Región", "Historia Temperatura"])
@@ -77,13 +81,13 @@ section = st.sidebar.radio("Selecciona una historia:", ["Presentación", "Histor
 if section == "Historia Región":
     st.title("Historia Región: Tipos de Delitos en Regiones")
 
-    #st.markdown("""<h3>Tipos de Delitos en Regiones</h3>""", unsafe_allow_html=True)
-    #fig = px.bar(df_delitos, x='Región', y='Cantidad', color='Tipo_De_Licto', barmode='group')
-    #st.plotly_chart(fig)
+    st.markdown("""<h3>Tipos de Delitos en Regiones</h3>""", unsafe_allow_html=True)
+    fig = px.bar(df_delitos, x='Región', y='Cantidad', color='Tipo_De_Licto', barmode='group')
+    st.plotly_chart(fig)
 
     st.markdown("""<h3>Tipos de Delitos en Regiones</h3>""", unsafe_allow_html=True)
-    #fig = px.bar(df_delitos, x='Región', y='Cantidad', color='Tipo_De_Licto', barmode='group')
-    #st.plotly_chart(fig)
+    fig = px.bar(df_delitos, x='Región', y='Cantidad', color='Tipo_De_Licto', barmode='group')
+    st.plotly_chart(fig)
 
     # Filtrar por región
     region_seleccionada = st.selectbox("Selecciona una región:", df_delitos['Región'].unique())
@@ -99,21 +103,17 @@ if section == "Historia Región":
 
     st.markdown("""<h3>Mapa Coroplético de Incidencia de Delitos por Región</h3>""", unsafe_allow_html=True)
 
-    #centro_mapa = [df_delitos['Latitud'].mean(), df_delitos['Longitud'].mean()]
-    #m = folium.Map(location=centro_mapa, zoom_start=6)
+    # Configurar el mapa centrado en la ubicación promedio
+    connect_center = [df_delitos['lat'].mean(), df_delitos['lon'].mean()]
+    map = folium.Map(location=connect_center, zoom_start=6)
 
-    #for index, row in df_delitos.iterrows():
-    #    folium.Marker(
-    #        location=[row['Latitud'], row['Longitud']],
-    #        popup=f"{row['Municipio']} ({row['Región']}): {row['Cantidad']} delitos ({row['Tipo_De_Licto']})"
-    #    ).add_to(m)
+    # Agregar marcadores para cada municipio
+    for index, row in df_delitos.iterrows():
+        folium.Marker([row['lat'], row['lon']], popup=row['Municipio']).add_to(map)
 
-    # Guardar el mapa como un archivo HTML temporal
-    #mapa_html = f"data/mapa_temp.html"
-    #m.save(mapa_html)
-
-    # Mostrar el mapa en Streamlit usando HTML
-    #st.markdown("""<iframe src="data/mapa_temp.html" width="100%" height="500" frameborder="0" allowFullScreen="true"></iframe>""", unsafe_allow_html=True)
+    # Mostrar el mapa en Streamlit
+    st.title("Mapa de Municipios con Delitos")
+    st_folium(map, width=700, height=500)
 
     st.map(df_delitos,
     latitude='lat',
@@ -121,17 +121,15 @@ if section == "Historia Región":
     size='Cantidad')
 
     st.markdown("""<h3>Gráficas con Power BI</h3>""", unsafe_allow_html=True)
-    st.markdown("""<iframe title="testIC" width="70%" height="600" src="https://app.powerbi.com/view?r=eyJrIjoiNTczNDMzNGItMGY5Yi00ZmM5LWE4NjctNWNjYjJmNzY4ZjQ2IiwidCI6IjY3NTUzNjQ1LTBkYjMtNDQ4MC1iMTI3LTZmODE5YTc5ZTM2NyIsImMiOjR9&pageName=ReportSectionc7b0f916ac6d03fe4d85" frameborder="0" allowFullScreen="true"></iframe>""", unsafe_allow_html=True)
+    st.markdown("""<iframe title="testIC" width="100%" height="600" src="https://app.powerbi.com/view?r=eyJrIjoiNTczNDMzNGItMGY5Yi00ZmM5LWE4NjctNWNjYjJmNzY4ZjQ2IiwidCI6IjY3NTUzNjQ1LTBkYjMtNDQ4MC1iMTI3LTZmODE5YTc5ZTM2NyIsImMiOjR9&pageName=ReportSectionc7b0f916ac6d03fe4d85" frameborder="0" allowFullScreen="true"></iframe>""", unsafe_allow_html=True)
 
 # Historia 2: Influencia de la Temperatura en Delitos
 elif section == "Historia Temperatura":
     st.markdown("""<h3>Influencia de la Temperatura en Delitos</h3>""", unsafe_allow_html=True)
     # Agregar gráficas y elementos interactivos aquí...
-    
-    #st.title("Influencia de la Temperatura en Delitos")
 
-    #scatter_fig = px.scatter(df_temperatura, x='Temperatura', y='Cantidad', color='Tipo_De_Licto', size='Cantidad')
-    #st.plotly_chart(scatter_fig)
+    scatter_fig = px.scatter(df_temperatura, x='Temperatura', y='Cantidad', color='Tipo_De_Licto', size='Cantidad')
+    st.plotly_chart(scatter_fig)
 
     scatter = alt.Chart(df_temperatura).mark_circle().encode(
         x='Fecha:T',
@@ -146,15 +144,15 @@ elif section == "Historia Temperatura":
 # Página de Inicio
 else:
     url = "https://lottie.host/e8a1108f-ade8-4192-a487-0cea229574d8/u8vVG9oEEo.json"
-    #lottie_inicial = load_lottie(url)
+    lottie_inicial = load_lottie(url)
 
     with app_container:
-        st.title("Análisis Incidencia Delictiva con Datos (Contando algunas historias)")
+        st.title("Análisis Incidencia Delictiva con Datos")
         animation_column, text_column = st.columns(2)
         with animation_column:
             imagen_url = "images/stats.png"
-            st.image(imagen_url, caption='', use_column_width=True, width=0.5)
-            #st_lottie(lottie_inicial, height=300)
+            #st.image(imagen_url, caption='', use_column_width=True, width=0.5)
+            st_lottie(lottie_inicial, height=300)
         with text_column:
             st.markdown("""
                 <div style='text-align: justify; display: flex; align-items: center; height: 100%; width: 60%; justify-content: left'>
