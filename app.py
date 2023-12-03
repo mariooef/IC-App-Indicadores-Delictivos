@@ -10,7 +10,7 @@ import datetime
 import numpy as np
 import altair as alt
 import utils
-from utils import cargar_csv
+from utils import cargar_parquet
 from config import st
 
 #------------------------ Estilos y formato --------------------------------------------------------------------------
@@ -32,8 +32,8 @@ def load_lottie(url):
 css_load(f"style/main.css")
 
 # Aplicando una paleta de colores Viridis
-viridis_palette = px.colors.sequential.Viridis
-info_color = viridis_palette[4] 
+viridis_palette = px.colors.sequential.Plasma
+info_color = viridis_palette[6] 
 
 #----------------------------- Definición de variables--------------------------------------------------------------------------------
 
@@ -42,15 +42,13 @@ url = ""
 
 #--------------------------------------- Carga de datos -----------------------------------------------------------------------------
 
-df_delitos_mas_pred = cargar_csv("DelitosMasPred")
-df_frec_rel_region = cargar_csv("FrecRelRegion")
+df_delitos_mas_pred = cargar_parquet("DelitosMasPred")
+df_frec_rel_region = cargar_parquet("FrecRelRegion")
+df_delictiva_clima_hist = cargar_parquet("DelictivaClimaHist")
+
 
 if (df_delitos_mas_pred is not None) & (df_delitos_mas_pred is not None):
     st.toast("Datos cargados exitosamente:")
-
-    with st.expander("Datos"):
-        st.write(df_delitos_mas_pred)
-        st.write(df_frec_rel_region)
 else:
     st.error("Hubo un problema al cargar los dataframes.")
 
@@ -91,7 +89,7 @@ fig = px.treemap(df_delitos_mas_pred,
                  color='numero_delitos',                
                  hover_data=['numero_delitos'],        
                  title='Treemap de Delitos por Región y Tipo',
-                 color_continuous_scale='viridis')
+                 color_continuous_scale='plasma')
 
 
 # Agregar interactividad
@@ -151,8 +149,9 @@ if section == "Historia Región":
     longitude='lon',
     size='Cantidad')
 
-    st.markdown("""<h3>Gráficas con Power BI</h3>""", unsafe_allow_html=True)
-    st.markdown("""<iframe title="testIC" width="100%" height="600" src="https://app.powerbi.com/view?r=eyJrIjoiNTczNDMzNGItMGY5Yi00ZmM5LWE4NjctNWNjYjJmNzY4ZjQ2IiwidCI6IjY3NTUzNjQ1LTBkYjMtNDQ4MC1iMTI3LTZmODE5YTc5ZTM2NyIsImMiOjR9&pageName=ReportSectionc7b0f916ac6d03fe4d85" frameborder="0" allowFullScreen="true"></iframe>""", unsafe_allow_html=True)
+    with st.container():
+        st.plotly_chart(fig, use_container_width=True, width="100%", height=600)
+        st.markdown("<hr>", unsafe_allow_html=True)
 
 # Historia 2: Influencia de la Temperatura en Delitos
 elif section == "Historia Temperatura":
@@ -191,50 +190,69 @@ else:
                     El impacto de la incidencia delictiva en Sonora en las distintas regiones,
                     sin duda alguna ciertos tipos de delitos son más predominantes en unas regiones que otras,
                     pero ¿cuáles son esos delitos? Ahora bien, la temperatura es algo que sin duda alguna influye en el comportamiento humano,
-                    ¿influye para la generación de algún tipo de delito?
+                    ¿influye para la generación de algún tipo de delito?{info_inicial}
                 </div>
             """, unsafe_allow_html=True)
     with st.container():
-        col1, col2, col3, col4 = st.columns([1, 1, 2, 1])
+         info_inicial = st.info("""El objetivo general es presentar los hallazgos obtenidos con el análisis de los datos
+                    de frecuencia o incidencia delictiva, la región o zona dentro del estado de Sonora, y
+                    la temperatura, una variable climatológica. La audiencia a la cual está enfocada este
+                    trabajo es la Subsecretaría de Gobierno Digital del Estado de Sonora. Al ser datos de
+                    frecuencia con distintos tipos de variables, el tablero que se presenta contiene gráficas
+                    sencillas que permitan ver proporciones y correlación entre características. Ante esto,
+                    en esta pagina se cuenta con gráficos de barras y de dispersión, así como mapas que nos den una
+                    distribución geográfica de donde ocurren los eventos descritos.""")
+         
+    st.markdown("<hr>", unsafe_allow_html=True)
+
+    with st.container():
+        col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
         with col1:
-            kpi_total = df_delitos_mas_pred['numero_delitos'].sum()
+            kpi_total = df_delictiva_clima_hist['numero_delitos'].sum()
             info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Total Delitos</p>"
             info_message = f"<p style='font-size: 24px; font-weight: bold;'>{int(kpi_total):,}</p>"
             styled_info_message = f'<div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 100px;">{info_title}{info_message}</div>'
             st.markdown(styled_info_message, unsafe_allow_html=True)
         with col2:
-            kpi_region = df_delitos_mas_pred.groupby('region')['numero_delitos'].sum().reset_index()
-            info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Región mas conflictiva</p>"
-            region_max_delitos = df_delitos_mas_pred.loc[df_delitos_mas_pred['numero_delitos'].idxmax()]['region']
-            region_max_numdelitos = df_delitos_mas_pred.loc[df_delitos_mas_pred['numero_delitos'].idxmax()]['numero_delitos']
-            #info_message = f"<p style='font-size: 24px; font-weight: bold;'>{int(kpi_region[kpi_region['region']=='Centro Norte']['numero_delitos'].iloc[0])}</p>"
-            info_message = f"<p style='font-size: 24px; font-weight: bold;'>{region_max_delitos} ({int(region_max_numdelitos):,})</p>"
-            styled_info_message = f'<div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 100px;">{info_title}{info_message}</div>'
-            st.markdown(styled_info_message, unsafe_allow_html=True)
-        with col3:
-            kpi_region = df_delitos_mas_pred.groupby('region')['numero_delitos'].sum().reset_index()
-            info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Delito mas frecuente</p>"
-            df_frecuente_tipo = pd.DataFrame(df_frec_rel_region[df_frec_rel_region["numero_delitos_rel"] == df_frec_rel_region["numero_delitos_rel"].max()])
-            #info_message = f"<p style='font-size: 24px; font-weight: bold;'>{int(kpi_region[kpi_region['region']=='Centro Norte']['numero_delitos'].iloc[0])}</p>"
-            styled_info_message = f'''
-                <div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 100px;">
-                    {info_title}
-                    <p style='font-size: 24px; font-weight: bold;'>{df_frecuente_tipo.iloc[1, 2]} ({df_frecuente_tipo.iloc[1, 1]}) y {df_frecuente_tipo.iloc[0, 2]} ({df_frecuente_tipo.iloc[0, 1]})</p>
-                </div>
-            '''
-            #styled_info_message = f'<div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 100px;">{info_title}{info_message}</div>'
-            st.markdown(styled_info_message, unsafe_allow_html=True)
-        with col4:
-            region_max_numdelitos = df_delitos_mas_pred.loc[df_delitos_mas_pred['numero_delitos'].idxmax()]['tipo_delito']
-            info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Delito predominante</p>"
+            region_max_numdelitos = df_delictiva_clima_hist.loc[df_delictiva_clima_hist['numero_delitos'].idxmax()]['tipo_delito']
+            info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Delito predominante entre ciudades</p>"
             info_message = f"<p style='font-size: 24px; font-weight: bold;'>{region_max_numdelitos}</p>"
             styled_info_message = f'<div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 100px;">{info_title}{info_message}</div>'
             st.markdown(styled_info_message, unsafe_allow_html=True)
-    
+        with col3:
+            promedio_delitos_por_año = df_delictiva_clima_hist['numero_delitos'].sum() / df_delictiva_clima_hist['anio'].nunique()
+            info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Promedio delito por año</p>"
+            info_message = f"<p style='font-size: 24px; font-weight: bold;'>{int(promedio_delitos_por_año):,}</p>"
+            styled_info_message = f'<div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 100px;">{info_title}{info_message}</div>'
+            st.markdown(styled_info_message, unsafe_allow_html=True)      
+        with col4:
+            kpi_total = df_delictiva_clima_hist['numero_delitos'].sum()
+            mes_max_incidencia = df_delictiva_clima_hist.loc[df_delictiva_clima_hist['numero_delitos'].idxmax()]['mes']
+            porcentaje_mes_max = (df_delictiva_clima_hist[df_delictiva_clima_hist['mes'] == mes_max_incidencia]['numero_delitos'].sum() / kpi_total) * 100
+            info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Mes mas conflictivo</p>"
+            info_message = f"<p style='font-size: 24px; font-weight: bold;'>{mes_max_incidencia} ({porcentaje_mes_max:,.2f}%)</p>"
+            styled_info_message = f'<div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 100px;">{info_title}{info_message}</div>'
+            st.markdown(styled_info_message, unsafe_allow_html=True)
+
     st.markdown("<br>", unsafe_allow_html=True)
 
-    with st.container():
-        st.plotly_chart(fig, use_container_width=True, width="100%", height=600)
+    with st.expander("Contexto de la Historia"):
+        st.markdown("### Información detallada")
+        st.markdown("✨ **Destacado**: Aquí hay información importante.")
+        st.info("""Podemos
+                sospechar que debido a su cercanÍa con la frontera, los municipios y regiones en el norte
+                del estado pueden tener mayor incidencia en actividades como la trata de personas o
+                el narcomenudeo. También, se puede pensar que la actividad agrícola que existe en el
+                sur del estado puede influir sobre el comportamiento delictivo. En efecto, cuatro de
+                los cinco municipios con mayor superficie sembrada se encuentran en esta región. Esto
+                puede confirmarse en la siguiente [página](https://www.gob.mx/agricultura/es/articulos/produccion-agropecuaria-y-pesquera-en-sonora?idiom=es)""")
 
-        # Divisor para separar secciones
-        st.markdown("<hr>", unsafe_allow_html=True)
+    st.markdown("""<h3>Mapa Coroplético Delitos Nivel Municipal</h3>""", unsafe_allow_html=True)
+    st.markdown("""<iframe title="testIC" width="100%" height="600" src="https://app.powerbi.com/view?r=eyJrIjoiYzE5NTM0YTAtMTU1Yi00Yjk4LWIzZTEtNWQ3ZGNhN2VhMDQxIiwidCI6IjY3NTUzNjQ1LTBkYjMtNDQ4MC1iMTI3LTZmODE5YTc5ZTM2NyIsImMiOjR9" frameborder="0" allowFullScreen="true"></iframe>""", unsafe_allow_html=True)
+
+    st.markdown("<hr>", unsafe_allow_html=True)
+
+    with st.expander("Datos"):
+        st.write(df_delitos_mas_pred)
+        st.write(df_frec_rel_region)
+        st.write(df_delictiva_clima_hist)
