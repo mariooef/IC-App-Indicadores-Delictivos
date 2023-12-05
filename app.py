@@ -36,17 +36,6 @@ info_color = viridis_palette[6]
 app_container = st.container()
 url = ""
 
-#--------------------------------------- Carga de datos -----------------------------------------------------------------------------
-
-df_delictiva_clima_hist = cargar_parquet("DelictivaClimaHist")
-df_municipio_mas_delictivo = cargar_parquet("MunicipiosMasDelictivosRegion")
-df_delitos_mas_frec = cargar_parquet("DelitosMasFrec")
-
-if (df_delictiva_clima_hist is not None) & (df_municipio_mas_delictivo is not None)  & (df_delitos_mas_frec is not None):
-    st.toast("Datos cargados exitosamente:")
-else:
-    st.error("Hubo un problema al cargar los dataframes.")
-
 
 #----------------------------------------------------- INICIO APP -------------------------------------------------------------
 
@@ -114,7 +103,6 @@ if section == "Historia Región":
             kpi_region = df_delitos_mas_pred.groupby('region')['numero_delitos'].sum().reset_index()
             info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Región mas conflictiva</p>"
             region_max_delitos = df_delitos_mas_pred.loc[df_delitos_mas_pred['numero_delitos'].idxmax()]['region']
-            #region_max_numdelitos = df_delictiva_clima_hist.loc[df_delictiva_clima_hist['numero_delitos'].idxmax()]['numero_delitos']
             region_max_numdelitos = kpi_region[kpi_region['region'] == region_max_delitos]['numero_delitos']
             info_message = f"<p style='font-size: 24px; font-weight: bold;'>{region_max_delitos} ({int(region_max_numdelitos):,})</p>"
             styled_info_message = f'<div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 115px;">{info_title}{info_message}</div>'
@@ -175,8 +163,6 @@ if section == "Historia Región":
                 )
 
                 fig.update_layout(coloraxis_colorbar=dict(title='Total Delitos'))
-
-                
                 st.plotly_chart(fig, use_container_width=True, width="100%", height=600)
 
             with col2:
@@ -205,48 +191,44 @@ if section == "Historia Región":
             st.markdown("<hr>", unsafe_allow_html=True)
 
             st.markdown("""<h3>Frecuencia Relativa</h3>""", unsafe_allow_html=True)
-            col1, col2 = st.columns([2, 1])
-
-            with col1:
-                figR = px.treemap(df_filtrador, 
-                            path=['region', 'tipo_delito'],  
-                            values='numero_delitos_rel',               
-                            color='numero_delitos_rel',                
-                            hover_data=['numero_delitos_rel'],        
-                            title='Treemap de Delitos por Región y Tipo (Frecuencia Relativa)',
-                            color_continuous_scale='plasma')
-
-                figR.update_layout(
-                    margin=dict(t=0, l=0, r=0, b=0),
-                    coloraxis_showscale=True,
-                )
-
-                figR.update_layout(coloraxis_colorbar=dict(title='Frecuencia Relativa'))
-
-                st.plotly_chart(figR, use_container_width=True, width="100%", height=600)
             
-            with col2:
-            #    st.map(df_filtrador,
-            #    latitude='lat',
-            #    longitude='lon',
-            #    size='numero_delitos')
+            figR = px.treemap(df_filtrador, 
+                        path=['region', 'tipo_delito'],  
+                        values='numero_delitos_rel',               
+                        color='numero_delitos_rel',                
+                        hover_data=['numero_delitos_rel'],        
+                        title='Treemap de Delitos por Región y Tipo (Frecuencia Relativa)',
+                        color_continuous_scale='plasma')
 
-                connect_center = [df_filtrador['lat'].mean(), df_filtrador['lon'].mean()]
-                map = folium.Map(location=connect_center, zoom_start=6)
+            figR.update_layout(
+                margin=dict(t=0, l=0, r=0, b=0),
+                coloraxis_showscale=True,
+            )
 
-                for index, row in df_filtrador.iterrows():
-                    color = px.colors.sequential.Plasma[index % len(px.colors.sequential.Plasma)]
-                    size = row['numero_delitos_rel']
-                    folium.CircleMarker(
-                            location=[row['lat'], row['lon']],
-                            color=color,
-                            fill=True,
-                            fill_color=color,
-                            fill_opacity=0.7,
-                            popup=f"{row['region']}: {row['numero_delitos_rel']} delitos"
-                        ).add_to(map)
+            figR.update_layout(coloraxis_colorbar=dict(title='Frecuencia Relativa'))
 
-                folium_static(map, width=700, height=500)
+            st.plotly_chart(figR, use_container_width=True, width="100%", height=600)
+
+            st.markdown("<hr>", unsafe_allow_html=True)
+
+            st.markdown("""<h3>Frecuencia regional con respecto a la población</h3>""", unsafe_allow_html=True)
+            
+            figR = px.treemap(df_filtrador, 
+                        path=['region', 'tipo_delito'],  
+                        values='indicador_pob',               
+                        color='indicador_pob',                
+                        hover_data=['indicador_pob'],        
+                        title='Treemap de Delitos por Región y Tipo (Indicador Poblacional)',
+                        color_continuous_scale='plasma')
+
+            figR.update_layout(
+                margin=dict(t=0, l=0, r=0, b=0),
+                coloraxis_showscale=True,
+            )
+
+            figR.update_layout(coloraxis_colorbar=dict(title='Frecuencia Relativa'))
+
+            st.plotly_chart(figR, use_container_width=True, width="100%", height=600)
 
     with st.expander("Datos"):
         st.write(df_delitos_mas_pred)
@@ -254,17 +236,21 @@ if section == "Historia Región":
 
 # Historia 2: Influencia de la Temperatura en Delitos
 elif section == "Historia Temperatura":
-    st.snow()
-    url = "https://lottie.host/9c982922-aa69-43c6-8bdd-d36127870f26/vxKK73nzj6.json"
-    lottie_inicial = load_lottie(url)
 
     #---------------------------- Carga de datos -------------------------------------------
     df_scatter_municipal = cargar_parquet("ScatterMunicipal")
     df_scatter_regional = cargar_parquet("ScatterRegional")
     df_coefConMuni = cargar_parquet("CoefCorMunicipio")
     df_coefRegion = cargar_parquet("CoefCorRegion")
+    df_meteoro_clima_mun = cargar_parquet("MeteorologiaClimatologiaMun")
 
-    if (df_scatter_municipal is not None) & (df_scatter_regional is not None):
+    #----------------------------------------------------------------------------------------
+
+    st.snow()
+    url = "https://lottie.host/9c982922-aa69-43c6-8bdd-d36127870f26/vxKK73nzj6.json"
+    lottie_inicial = load_lottie(url)
+
+    if (df_scatter_municipal is not None) & (df_scatter_regional is not None) & (df_meteoro_clima_mun is not None):
         st.toast("Datos cargados exitosamente:")
     else:
         st.error("Hubo un problema al cargar los dataframes.")
@@ -296,11 +282,18 @@ elif section == "Historia Temperatura":
             styled_info_message = f'<div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 115px;">{info_title}{info_message}</div>'
             st.markdown(styled_info_message, unsafe_allow_html=True)
         with col3:
-            bins = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
-            df_delictiva_clima_hist['rango_temperatura'] = pd.cut(df_delictiva_clima_hist['temperatura_promedio'], bins=bins, labels=['0-5', '5-10', '11-15', '16-20', '21-25', '26-30', '31-35', '36-40', '41-45', '46-50'])
-            rango_max_delitos = df_delictiva_clima_hist.groupby('rango_temperatura')['numero_delitos'].sum().idxmax()
-            info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Rango de Temperatura, mayor no. delitos</p>"
-            info_message = f"<p style='font-size: 24px; font-weight: bold;'>{rango_max_delitos} °C</p>"
+            #bins = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
+            #df_meteoro_clima_mun['rango_temperatura'] = pd.cut(df_meteoro_clima_mun['temperatura_promedio'], bins=bins, labels=['0-5', '5-10', '11-15', '16-20', '21-25', '26-30', '31-35', '36-40', '41-45', '46-50'])
+            #rango_max_delitos = df_meteoro_clima_mun.groupby('rango_temperatura')['numero_delitos'].sum().idxmax()
+            #info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Rango de Temperatura, mayor no. delitos</p>"
+            #info_message = f"<p style='font-size: 24px; font-weight: bold;'>{rango_max_delitos} °C</p>"
+            #styled_info_message = f'<div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 115px;">{info_title}{info_message}</div>'
+            #st.markdown(styled_info_message, unsafe_allow_html=True)
+            coeficiente_mas_alto = max_val = df_coefConMuni['val'].max()
+            max_row = df_coefConMuni[df_coefConMuni['val'] == max_val]
+            result = max_row['delito'].values[0] + '-' + max_row['municipio'].values[0]
+            info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Coeficiente correlación mas alto</p>"
+            info_message = f"<p style='font-size: 24px; font-weight: bold;'>{result} ({round(max_row['val'].values[0], 2)})</p>"
             styled_info_message = f'<div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 115px;">{info_title}{info_message}</div>'
             st.markdown(styled_info_message, unsafe_allow_html=True)
         with col4:
@@ -326,20 +319,10 @@ elif section == "Historia Temperatura":
                 conducta y la interacción social.""")
         
     with st.container():
-        with st.container():
-            st.markdown("""<h3>Violencia-Municipio en Función de la Temperatura y Frecuencia Relativa""", unsafe_allow_html=True)
-            col1, col2 = st.columns([1, 2])
-            with col1:
-                fig = px.violin(df_scatter_municipal, 
-                                y='temperatura_promedio', 
-                                box=True,
-                                points="all",
-                                width=800, height=500)
-                fig.update_yaxes(title_text='Temperatura Promedio')
 
-                st.plotly_chart(fig, use_container_width=True)
-            with col2:
-                fig = px.scatter(df_scatter_municipal, 
+        st.markdown("""<h3>Violencia-Municipio en Función de la Temperatura y Frecuencia Relativa</h3>""", unsafe_allow_html=True)
+
+        fig = px.scatter(df_scatter_municipal, 
                     x='temperatura_promedio', 
                     y='frecuencia_relativa', 
                     color='par',
@@ -347,28 +330,17 @@ elif section == "Historia Temperatura":
                     hover_data=['par'],
                     color_continuous_scale="plasma")
                 
-                fig.update_xaxes(title_text='Temperatura Promedio')
-                fig.update_yaxes(title_text='Frecuencia Relativa')
-                fig.update_layout(legend_title_text='Tipo Delito - Municipio')
+        fig.update_xaxes(title_text='Temperatura Promedio')
+        fig.update_yaxes(title_text='Frecuencia Relativa')
+        fig.update_layout(legend_title_text='Tipo Delito - Municipio')
                 
-                st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True)
 
-            st.markdown("<br>", unsafe_allow_html=True)
-        with st.container():
-            st.markdown("""<h3>Violencia-Región en Función de la Temperatura y Frecuencia Relativa""", unsafe_allow_html=True)
-            col1, col2 = st.columns([1, 2])
-            with col1:
-                fig = px.violin(df_scatter_regional, 
-                                y='temperatura_promedio', 
-                                box=True,
-                                points="all",
-                                width=800, height=500)
-                
-                fig.update_yaxes(title_text='Temperatura Promedio')
+        st.markdown("<br>", unsafe_allow_html=True)
 
-                st.plotly_chart(fig, use_container_width=True)
-            with col2:
-                fig = px.scatter(df_scatter_regional, 
+        st.markdown("""<h3>Violencia-Región en Función de la Temperatura y Frecuencia Relativa</h3>""", unsafe_allow_html=True)
+
+        fig = px.scatter(df_scatter_regional, 
                     x='temperatura_promedio', 
                     y='frecuencia_relativa', 
                     color='par',
@@ -376,20 +348,49 @@ elif section == "Historia Temperatura":
                     hover_data=['par'],
                     color_continuous_scale="plasma")
                 
-                fig.update_xaxes(title_text='Temperatura Promedio')
-                fig.update_yaxes(title_text='Frecuencia Relativa')
-                fig.update_layout(legend_title_text='Tipo Delito - Región')
+        fig.update_xaxes(title_text='Temperatura Promedio')
+        fig.update_yaxes(title_text='Frecuencia Relativa')
+        fig.update_layout(legend_title_text='Tipo Delito - Región')
                 
-                st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        st.markdown("""<h3>Distribución de la temperatura promedio</h3>""", unsafe_allow_html=True)
+
+        fig = px.violin(df_meteoro_clima_mun, 
+                        x='temperatura_promedio', 
+                        box=True,
+                        points="all",
+                        width=800, height=500,
+                        orientation='h')
+        fig.update_xaxes(title_text='Temperatura Promedio')
+
+        st.plotly_chart(fig, use_container_width=True)
 
     with st.expander("Datos"):
         st.write(df_scatter_municipal)
         st.write(df_scatter_regional)
         st.write(df_coefConMuni)
         st.write(df_coefRegion)
+        st.write(df_meteoro_clima_mun)
 
 # Página de Inicio
 else:
+
+    #--------------------------------------- Carga de datos -----------------------------------------------------------------------------
+
+    df_delictiva_mun_coord = cargar_parquet("DelictivaMunCoordenadas")
+    df_municipio_mas_delictivo = cargar_parquet("MunicipiosMasDelictivosRegion")
+    df_delitos_mas_frec = cargar_parquet("DelitosMasFrec")
+
+    if (df_delictiva_mun_coord is not None) & (df_municipio_mas_delictivo is not None)  & (df_delitos_mas_frec is not None):
+        st.toast("Datos cargados exitosamente:")
+    else:
+        st.error("Hubo un problema al cargar los dataframes.")
+    
+    #--------------------------------------------------------------------------------------------------------------------------------------
+
     url = "https://lottie.host/e8a1108f-ade8-4192-a487-0cea229574d8/u8vVG9oEEo.json"
     lottie_inicial = load_lottie(url)
 
@@ -425,27 +426,27 @@ else:
     with st.container():
         col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
         with col1:
-            kpi_total = df_delictiva_clima_hist['numero_delitos'].sum()
+            kpi_total = df_delictiva_mun_coord['numero_delitos'].sum()
             info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Total Delitos</p>"
             info_message = f"<p style='font-size: 24px; font-weight: bold;'>{int(kpi_total):,}</p>"
             styled_info_message = f'<div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 115px;">{info_title}{info_message}</div>'
             st.markdown(styled_info_message, unsafe_allow_html=True)
         with col2:
-            region_max_numdelitos = df_delictiva_clima_hist.loc[df_delictiva_clima_hist['numero_delitos'].idxmax()]['tipo_delito']
+            region_max_numdelitos = df_delictiva_mun_coord.loc[df_delictiva_mun_coord['numero_delitos'].idxmax()]['tipo_delito']
             info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Delito predominante entre ciudades</p>"
             info_message = f"<p style='font-size: 24px; font-weight: bold;'>{region_max_numdelitos}</p>"
             styled_info_message = f'<div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 115px;">{info_title}{info_message}</div>'
             st.markdown(styled_info_message, unsafe_allow_html=True)
         with col3:
-            promedio_delitos_por_año = df_delictiva_clima_hist['numero_delitos'].sum() / df_delictiva_clima_hist['anio'].nunique()
+            promedio_delitos_por_año = df_delictiva_mun_coord['numero_delitos'].sum() / df_delictiva_mun_coord['anio'].nunique()
             info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Promedio delito por año</p>"
             info_message = f"<p style='font-size: 24px; font-weight: bold;'>{int(promedio_delitos_por_año):,}</p>"
             styled_info_message = f'<div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 115px;">{info_title}{info_message}</div>'
             st.markdown(styled_info_message, unsafe_allow_html=True)      
         with col4:
-            kpi_total = df_delictiva_clima_hist['numero_delitos'].sum()
-            mes_max_incidencia = df_delictiva_clima_hist.loc[df_delictiva_clima_hist['numero_delitos'].idxmax()]['mes']
-            porcentaje_mes_max = (df_delictiva_clima_hist[df_delictiva_clima_hist['mes'] == mes_max_incidencia]['numero_delitos'].sum() / kpi_total) * 100
+            kpi_total = df_delictiva_mun_coord['numero_delitos'].sum()
+            mes_max_incidencia = df_delictiva_mun_coord.loc[df_delictiva_mun_coord['numero_delitos'].idxmax()]['mes']
+            porcentaje_mes_max = (df_delictiva_mun_coord[df_delictiva_mun_coord['mes'] == mes_max_incidencia]['numero_delitos'].sum() / kpi_total) * 100
             info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Mes mas conflictivo</p>"
             info_message = f"<p style='font-size: 24px; font-weight: bold;'>{mes_max_incidencia} ({porcentaje_mes_max:,.2f}%)</p>"
             styled_info_message = f'<div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 115px;">{info_title}{info_message}</div>'
@@ -491,12 +492,10 @@ else:
         with col3:
             st.markdown('\n'.join(f'- {tipo_delito}' for tipo_delito in columna3))
 
-    st.markdown("""<h3>Mapa Coroplético Delitos Nivel Municipal</h3>""", unsafe_allow_html=True)
+    st.markdown("""<h3>Mapa Delitos Nivel Municipal</h3>""", unsafe_allow_html=True)
     st.markdown("""<iframe title="testIC" width="100%" height="600" src="https://app.powerbi.com/view?r=eyJrIjoiYzE5NTM0YTAtMTU1Yi00Yjk4LWIzZTEtNWQ3ZGNhN2VhMDQxIiwidCI6IjY3NTUzNjQ1LTBkYjMtNDQ4MC1iMTI3LTZmODE5YTc5ZTM2NyIsImMiOjR9" frameborder="0" allowFullScreen="true"></iframe>""", unsafe_allow_html=True)
 
     st.markdown("<hr>", unsafe_allow_html=True)
-
-    
 
     col1, col2 = st.columns(2)
     
@@ -515,4 +514,7 @@ else:
         st.plotly_chart(fig)
 
     with st.expander("Datos"):
-        st.write(df_delictiva_clima_hist)
+        st.write(df_delictiva_mun_coord)
+        st.write(df_municipio_mas_delictivo)
+        st.write(df_delitos_mas_frec)
+        st.write(df_delitos_mas_frec)
