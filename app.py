@@ -321,20 +321,16 @@ elif section == "Historia Temperatura":
         
     with st.container():
 
-        st.markdown("""<h3>Violencia-Municipio en Función de la Temperatura Promedio y Frecuencia Relativa</h3>""", unsafe_allow_html=True)
+        st.markdown("""<h3>Distribución de la temperatura promedio</h3>""", unsafe_allow_html=True)
 
-        fig = px.scatter(df_scatter_municipal, 
-                    x='temperatura_promedio', 
-                    y='frecuencia_relativa', 
-                    color='par',
-                    size='frecuencia_relativa',
-                    hover_data=['par'],
-                    color_continuous_scale="plasma")
-                
+        fig = px.violin(df_meteoro_clima_mun, 
+                        x='temperatura_promedio', 
+                        box=True,
+                        points="all",
+                        width=800, height=500,
+                        orientation='h')
         fig.update_xaxes(title_text='Temperatura Promedio')
-        fig.update_yaxes(title_text='Frecuencia Relativa')
-        fig.update_layout(legend_title_text='Tipo Delito - Municipio')
-                
+
         st.plotly_chart(fig, use_container_width=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
@@ -357,18 +353,22 @@ elif section == "Historia Temperatura":
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        st.markdown("""<h3>Distribución de la temperatura promedio</h3>""", unsafe_allow_html=True)
+        st.markdown("""<h3>Violencia-Municipio en Función de la Temperatura Promedio y Frecuencia Relativa</h3>""", unsafe_allow_html=True)
 
-        fig = px.violin(df_meteoro_clima_mun, 
-                        x='temperatura_promedio', 
-                        box=True,
-                        points="all",
-                        width=800, height=500,
-                        orientation='h')
+        fig = px.scatter(df_scatter_municipal, 
+                    x='temperatura_promedio', 
+                    y='frecuencia_relativa', 
+                    color='par',
+                    size='frecuencia_relativa',
+                    hover_data=['par'],
+                    color_continuous_scale="plasma")
+                
         fig.update_xaxes(title_text='Temperatura Promedio')
-
+        fig.update_yaxes(title_text='Frecuencia Relativa')
+        fig.update_layout(legend_title_text='Tipo Delito - Municipio')
+                
         st.plotly_chart(fig, use_container_width=True)
-
+       
     with st.expander("Datos"):
         st.write(df_scatter_municipal)
         st.write(df_scatter_regional)
@@ -501,7 +501,7 @@ else:
         df_delitos_ordenado = df_municipio_mas_delictivo.sort_values(by='numero_delitos', ascending=False)
         fig = px.bar(df_delitos_ordenado, x='numero_delitos', y='municipio', color='region',
              labels={'numero_delitos': 'Cantidad de Delitos', 'municipio': 'Municipio'},
-             title='Municipios con mayor frecuencia delictiva por región y los 15 delitos más frecuentes',
+             title='Municipios con mayor frecuencia delictiva por región',
              barmode='stack',
              color_continuous_scale='plasma')
         st.plotly_chart(fig)
