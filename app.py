@@ -1,4 +1,4 @@
-import streamlit as st
+from config import st
 import requests
 from streamlit_lottie import st_lottie
 import pandas as pd
@@ -6,7 +6,6 @@ import plotly.express as px
 import folium
 from  streamlit_folium import folium_static
 from utils import cargar_parquet
-from config import st
 from streamlit_option_menu import option_menu
 
 #------------------------ Estilos y formato --------------------------------------------------------------------------
@@ -101,14 +100,14 @@ if section == "Historia Región":
             st.markdown(styled_info_message, unsafe_allow_html=True)
         with col3:
             kpi_region = df_delitos_mas_pred.groupby('region')['numero_delitos'].sum().reset_index()
-            info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Región mas conflictiva</p>"
+            info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Región más conflictiva</p>"
             region_max_delitos = df_delitos_mas_pred.loc[df_delitos_mas_pred['numero_delitos'].idxmax()]['region']
             region_max_numdelitos = kpi_region[kpi_region['region'] == region_max_delitos]['numero_delitos']
             info_message = f"<p style='font-size: 24px; font-weight: bold;'>{region_max_delitos} ({int(region_max_numdelitos):,})</p>"
             styled_info_message = f'<div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 115px;">{info_title}{info_message}</div>'
             st.markdown(styled_info_message, unsafe_allow_html=True)      
         with col4:
-            info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Delito mas frecuente</p>"
+            info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Delito más frecuente</p>"
             df_frecuente_tipo = pd.DataFrame(df_frec_rel_region[df_frec_rel_region["numero_delitos_rel"] == df_frec_rel_region["numero_delitos_rel"].max()])
             styled_info_message = f'''
                 <div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 115px;">
@@ -209,6 +208,8 @@ if section == "Historia Región":
 
             st.plotly_chart(figR, use_container_width=True, width="100%", height=600)
 
+            st.info("""Proporción de delito que ocurrió en una región. Ejemplo: aproximadamente del 51% de los homicidios en Sonora ocurrieron en la región Sur.""")
+
             st.markdown("<hr>", unsafe_allow_html=True)
 
             st.markdown("""<h3>Frecuencia regional con respecto a la población</h3>""", unsafe_allow_html=True)
@@ -229,6 +230,8 @@ if section == "Historia Región":
             figR.update_layout(coloraxis_colorbar=dict(title='Frecuencia Relativa'))
 
             st.plotly_chart(figR, use_container_width=True, width="100%", height=600)
+
+            st.info("""Proporción tomando en cuenta la población. Ejemplo: en la región Sur ocurrió aproximadamente 1.5 veces más homicidio considerando su población total.""")
 
     with st.expander("Datos"):
         st.write(df_delitos_mas_pred)
@@ -271,13 +274,13 @@ elif section == "Historia Temperatura":
         col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
         with col1:
             delito_mas_repite = df_coefConMuni['delito'].mode()[0]
-            info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Delito mas correlacionado entre Municipio</p>"
+            info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Delito más correlacionado entre Municipio</p>"
             info_message = f"<p style='font-size: 24px; font-weight: bold;'>{delito_mas_repite}</p>"
             styled_info_message = f'<div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 115px;">{info_title}{info_message}</div>'
             st.markdown(styled_info_message, unsafe_allow_html=True)
         with col2:
             delito_mas_repite = df_coefRegion['delito'].mode()[0]
-            info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Delito mas correlacionado entre Regiones</p>"
+            info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Delito más correlacionado entre Regiones</p>"
             info_message = f"<p style='font-size: 24px; font-weight: bold;'>{delito_mas_repite}</p>"
             styled_info_message = f'<div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 115px;">{info_title}{info_message}</div>'
             st.markdown(styled_info_message, unsafe_allow_html=True)
@@ -292,7 +295,7 @@ elif section == "Historia Temperatura":
             coeficiente_mas_alto = max_val = df_coefConMuni['val'].max()
             max_row = df_coefConMuni[df_coefConMuni['val'] == max_val]
             result = max_row['delito'].values[0] + '-' + max_row['municipio'].values[0]
-            info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Coeficiente correlación mas alto</p>"
+            info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Coeficiente correlación más alto</p>"
             info_message = f"<p style='font-size: 24px; font-weight: bold;'>{result} ({round(max_row['val'].values[0], 2)})</p>"
             styled_info_message = f'<div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 115px;">{info_title}{info_message}</div>'
             st.markdown(styled_info_message, unsafe_allow_html=True)
@@ -310,17 +313,15 @@ elif section == "Historia Temperatura":
     with st.expander("Contexto de la Historia"):
         st.markdown("### Información detallada")
         st.markdown("✨ **Destacado**: Aquí hay información importante.")
-        st.info("""En esta historia se relaciona la temperatura, una variable climatológica temporal, con el comportamiento delictivo. El estado de Sonora se caracteriza por tener
-                un clima árido y extremo, alcanzando en ciertas regiones temperaturas de hasta 50 ℃.
-                Esta relación ya ha sido analizada en otras regiones y se han hecho estudios indicando
-                que, en efecto, existe una cierta correlación entre las dos variables, como el siguiente
-                artículo. En general, es natural pensar que climas extremos provoquen ciertas respues1
-                tas o irritabilidad en el ser humano, y como consecuencia, cambiar hasta cierto nivel la
-                conducta y la interacción social.""")
+        st.info("""En esta historia se relaciona la temperatura, una variable climatológica temporal, con el comportamiento delictivo. 
+                El estado de Sonora se caracteriza por tener un clima árido y extremo, alcanzando en ciertas regiones temperaturas de hasta 50 ℃. 
+                Esta relación ya ha sido analizada en otras regiones y se han hecho estudios indicando que, en efecto, existe una cierta correlación entre las dos variables. 
+                En general, es natural pensar que climas extremos provoquen ciertas respuestas o irritabilidad en el ser humano, y como consecuencia, 
+                cambiar hasta cierto nivel la conducta y la interacción social.""")
         
     with st.container():
 
-        st.markdown("""<h3>Violencia-Municipio en Función de la Temperatura y Frecuencia Relativa</h3>""", unsafe_allow_html=True)
+        st.markdown("""<h3>Violencia-Municipio en Función de la Temperatura Promedio y Frecuencia Relativa</h3>""", unsafe_allow_html=True)
 
         fig = px.scatter(df_scatter_municipal, 
                     x='temperatura_promedio', 
@@ -412,14 +413,10 @@ else:
                 </div>
             """, unsafe_allow_html=True)
     with st.container():
-         info_inicial = st.info("""El objetivo general es presentar los hallazgos obtenidos con el análisis de los datos
-                    de frecuencia o incidencia delictiva, la región o zona dentro del estado de Sonora, y
-                    la temperatura, una variable climatológica. La audiencia a la cual está enfocada este
-                    trabajo es la Subsecretaría de Gobierno Digital del Estado de Sonora. Al ser datos de
-                    frecuencia con distintos tipos de variables, el tablero que se presenta contiene gráficas
-                    sencillas que permitan ver proporciones y correlación entre características. Ante esto,
-                    en esta pagina se cuenta con gráficos de barras y de dispersión, así como mapas que nos den una
-                    distribución geográfica de donde ocurren los eventos descritos.""")
+         info_inicial = st.info("""El objetivo general es presentar los hallazgos obtenidos con el análisis de los datos de frecuencia o incidencia delictiva, 
+                                la región o zona dentro del estado de Sonora, y la temperatura, una variable climatológica. 
+                                Al ser datos de frecuencia con distintos tipos de variables, el tablero que se presenta contiene gráficas sencillas que permitan ver proporciones 
+                                y correlación entre estas características.""")
          
     st.markdown("<hr>", unsafe_allow_html=True)
 
@@ -433,8 +430,9 @@ else:
             st.markdown(styled_info_message, unsafe_allow_html=True)
         with col2:
             region_max_numdelitos = df_delictiva_mun_coord.loc[df_delictiva_mun_coord['numero_delitos'].idxmax()]['tipo_delito']
-            info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Delito predominante entre ciudades</p>"
-            info_message = f"<p style='font-size: 24px; font-weight: bold;'>{region_max_numdelitos}</p>"
+            num_max_numdelitos = df_delictiva_mun_coord[df_delictiva_mun_coord['tipo_delito']==region_max_numdelitos]['numero_delitos'].sum()
+            info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Delito más predominante</p>"
+            info_message = f"<p style='font-size: 24px; font-weight: bold;'>{region_max_numdelitos} ({int(num_max_numdelitos):,})</p>"
             styled_info_message = f'<div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 115px;">{info_title}{info_message}</div>'
             st.markdown(styled_info_message, unsafe_allow_html=True)
         with col3:
@@ -447,7 +445,7 @@ else:
             kpi_total = df_delictiva_mun_coord['numero_delitos'].sum()
             mes_max_incidencia = df_delictiva_mun_coord.loc[df_delictiva_mun_coord['numero_delitos'].idxmax()]['mes']
             porcentaje_mes_max = (df_delictiva_mun_coord[df_delictiva_mun_coord['mes'] == mes_max_incidencia]['numero_delitos'].sum() / kpi_total) * 100
-            info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Mes mas conflictivo</p>"
+            info_title = f"<p style='font-size: 18px; margin-bottom: 5px;'>Mes más conflictivo</p>"
             info_message = f"<p style='font-size: 24px; font-weight: bold;'>{mes_max_incidencia} ({porcentaje_mes_max:,.2f}%)</p>"
             styled_info_message = f'<div style="color: white; background-color: {info_color}; padding: 10px; border-radius: 5px; height: 115px;">{info_title}{info_message}</div>'
             st.markdown(styled_info_message, unsafe_allow_html=True)
@@ -493,7 +491,7 @@ else:
             st.markdown('\n'.join(f'- {tipo_delito}' for tipo_delito in columna3))
 
     st.markdown("""<h3>Mapa Delitos Nivel Municipal</h3>""", unsafe_allow_html=True)
-    st.markdown("""<iframe title="testIC" width="100%" height="600" src="https://app.powerbi.com/view?r=eyJrIjoiYzE5NTM0YTAtMTU1Yi00Yjk4LWIzZTEtNWQ3ZGNhN2VhMDQxIiwidCI6IjY3NTUzNjQ1LTBkYjMtNDQ4MC1iMTI3LTZmODE5YTc5ZTM2NyIsImMiOjR9" frameborder="0" allowFullScreen="true"></iframe>""", unsafe_allow_html=True)
+    st.markdown("""<iframe title="testIC" width="100%" height="600" src="https://app.powerbi.com/view?r=eyJrIjoiYjg5ZjkwMjktYjRiMi00OGY0LWIwMTQtZTZlZjliZmVjODU5IiwidCI6IjY3NTUzNjQ1LTBkYjMtNDQ4MC1iMTI3LTZmODE5YTc5ZTM2NyIsImMiOjR9" frameborder="0" allowFullScreen="true"></iframe>""", unsafe_allow_html=True)
 
     st.markdown("<hr>", unsafe_allow_html=True)
 
@@ -503,7 +501,7 @@ else:
         df_delitos_ordenado = df_municipio_mas_delictivo.sort_values(by='numero_delitos', ascending=False)
         fig = px.bar(df_delitos_ordenado, x='numero_delitos', y='municipio', color='region',
              labels={'numero_delitos': 'Cantidad de Delitos', 'municipio': 'Municipio'},
-             title='Los municipios con más frecuencia delictiva en cada región',
+             title='Municipios con mayor frecuencia delictiva por región y los 15 delitos más frecuentes',
              barmode='stack',
              color_continuous_scale='plasma')
         st.plotly_chart(fig)

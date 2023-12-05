@@ -1,6 +1,5 @@
-
-import pandas as pd
 from config import st
+import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
